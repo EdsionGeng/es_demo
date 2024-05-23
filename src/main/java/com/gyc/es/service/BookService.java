@@ -12,7 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 描述:
+ * 商品Service层
+ *
+ * @author gengyc
+ * @create 2024-05-23 10:49
+ */
 @RestController
 public class BookService {
     @Autowired

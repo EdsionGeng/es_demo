@@ -10,7 +10,13 @@ import com.gyc.es.util.OkHttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
+/**
+ * 描述:
+ * 商品repository层
+ *
+ * @author gengyc
+ * @create 2024-05-23 10:49
+ */
 @Repository
 @Slf4j
 public class BookRepository extends BaseRepository<ESSearchResponse, SearchRequest> {

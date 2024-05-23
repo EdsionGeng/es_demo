@@ -9,7 +9,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
-
+/**
+ * 描述:
+ * 商品Controller层
+ *
+ * @author gengyc
+ * @create 2024-05-23 10:49
+ */
 @Controller
 public class BookController {
     @Autowired
