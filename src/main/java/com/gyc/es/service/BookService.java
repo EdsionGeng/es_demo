@@ -96,7 +96,7 @@ public class BookService {
         final CsvReader reader = CsvUtil.getReader();
         //假设csv文件在classpath目录下
         final List<BookDTO> result = reader.read(
-                ResourceUtil.getUtf8Reader("/Users/biebersjustin/IdeaProjects/es_demo/src/main/resources/data.csv"), BookDTO.class);
+                ResourceUtil.getUtf8Reader("D:\\IdeaProjects\\es_demo\\src\\main\\resources\\data.csv"), BookDTO.class);
         if (CollectionUtils.isEmpty(result)) {
             return 0;
         }
@@ -106,6 +106,7 @@ public class BookService {
             esBook.setId(x.getId());
             esBook.setAuthor(x.getAuthor());
             esBook.setTitle(x.getTitle());
+            esBook.setTag(x.getTag());
             esBook.setTitleVec(null);
             esBook.setCategory(x.getCategory());
             esBook.setPrice(x.getPriceRef().multiply(new BigDecimal(100)).intValue());

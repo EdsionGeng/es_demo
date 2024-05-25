@@ -21,9 +21,12 @@ public class ESConfig implements InitializingBean {
      * 商品ES查询地址
      */
     private String bookESUrl;
+
+    private String bulkUrl;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         this.bookESUrl = String.format("http://%s/%s/_doc/_search", this.esServerName, this.bookQueryAliasName);
-
+        this.bulkUrl = "http://" + this.esServerName + "/_bulk";
     }
 }

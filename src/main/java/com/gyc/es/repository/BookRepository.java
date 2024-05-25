@@ -58,11 +58,14 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
 
             bookSearchRequest = (BookSearchRequest) request;
             String bookQueryDsl = String.format(bookQueryBody, bookSearchRequest.getKeyword());
+            log.info("Machine address:{} ,Solution query dsl ->{} ", esConfig.getBookESUrl(), bookQueryDsl);
             try {
                 //查询ES,解析返回数据 组装实体
                 String result = OkHttpUtils.callWithAuth(esConfig.getBookESUrl(), bookQueryDsl,
                         esConfig.getUsername(), esConfig.getPassword());
+
                 BookSearchResponse searchResponse = JSON.parseObject(result, BookSearchResponse.class);
+                searchResponse.convertBody();
                 return searchResponse;
             } catch (Exception e) {
                 log.error("book search make error ->{}", e);

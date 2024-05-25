@@ -8,9 +8,11 @@ import java.util.Date;
 @Data
 public class Book implements Serializable {
 
-    private Integer id;
+    private Long id;
 
     private String title;
+
+    private String tag;
 
     private String author;
 
