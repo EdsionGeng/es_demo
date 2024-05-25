@@ -17,12 +17,39 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
 
     @Autowired
     private ESConfig esConfig;
-    private static String bookQueryBody = "\"query\": {\n" +
-            "    \"multi_match\" : {\n" +
-            "      \"query\":    \"%s\",\n" +
-            "      \"fields\": [ \"author\", \"title\" ] \n" +
-            "    }\n" +
-            "  }";
+    private static String bookQueryBody = "{\n" +
+            "    \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\"],\n" +
+            "    \"query\": {\n" +
+            "     \"bool\": {\n" +
+            "     \"must\":[{\"multi_match\": {\"query\": \"%s\",\"fields\":[\"title^2\",  \"author^1\",\"tag^1\"] ,\"minimum_should_match\":\"%100%\",\"type\":\"cross_fields\"\n" +
+            "  }\n" +
+            " }]\n" +
+            "     }\n" +
+            "    },\n" +
+            "     \"from\":0,\n" +
+            "     \"size\":300,\n" +
+            "    \"timeout\": \"5s\"\n" +
+            " }";
+
+    private static String bookQueryVecBody = " {\n" +
+            "  \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\"],\n" +
+            "  \"from\":0,\n" +
+            "  \"size\":300,\n" +
+            "  \"timeout\": \"5s\",\n" +
+            "  \"query\": {\n" +
+            "    \"script_score\": {\n" +
+            "      \"query\": {\n" +
+            "        \"match_all\": {}\n" +
+            "      },\n" +
+            "      \"script\": {\n" +
+            "        \"source\": \"cosineSimilarity(params.query_vector, 'title_vec') + 1.0\", \n" +
+            "        \"params\": {\n" +
+            "          \"query_vector\": %s\n" +
+            "        }\n" +
+            "      }\n" +
+            "  }\n" +
+            "  }\n" +
+            "}";
 
     @Override
     public BookSearchResponse search(SearchRequest request) {
@@ -30,8 +57,31 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
         if (request instanceof BookSearchRequest) {
 
             bookSearchRequest = (BookSearchRequest) request;
-            //TODO DSL 进行组装处理
             String bookQueryDsl = String.format(bookQueryBody, bookSearchRequest.getKeyword());
+            try {
+                //查询ES,解析返回数据 组装实体
+                String result = OkHttpUtils.callWithAuth(esConfig.getBookESUrl(), bookQueryDsl,
+                        esConfig.getUsername(), esConfig.getPassword());
+                BookSearchResponse searchResponse = JSON.parseObject(result, BookSearchResponse.class);
+                return searchResponse;
+            } catch (Exception e) {
+                log.error("book search make error ->{}", e);
+            }
+            return new BookSearchResponse();
+        } else {
+            throw new RuntimeException("Product search request convert make error,please check it!");
+        }
+
+    }
+
+
+    public BookSearchResponse vectorSearch(SearchRequest request) {
+        BookSearchRequest bookSearchRequest;
+        if (request instanceof BookSearchRequest) {
+
+            bookSearchRequest = (BookSearchRequest) request;
+            //TODO DSL 进行组装处理
+            String bookQueryDsl = String.format(bookQueryVecBody, bookSearchRequest.getVector().toString());
 
             try {
                 //查询ES,解析返回数据 组装实体

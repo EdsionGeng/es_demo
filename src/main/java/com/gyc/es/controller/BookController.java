@@ -45,7 +45,7 @@ public class BookController {
      */
     @GetMapping("/searchVec")
     public String bookSearchVec(@RequestParam(value = "keyword") String keyword, Map<String, List> result) {
-        List<Book> books = bookService.searchBook(keyword);
+        List<Book> books = bookService.searchBookVec(keyword);
         result.put("books", books);
         return "index";
     }

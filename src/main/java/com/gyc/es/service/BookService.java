@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,22 +48,19 @@ public class BookService {
     public List<Book> searchBook(String keyword) {
 
         //TODO　进行分词处理，获取词性 以及词性ID，进行不同搜索策略选择
-        //List<Word> wordList=AnalyzerUtil.analyze(keyword);
+        List<Term> termList = StandardTokenizer.segment(keyword);
+        if (CollectionUtils.isEmpty(termList)) return null;
+        String key = StrUtil.join(",", termList.stream().map(p -> p.word).collect(Collectors.toList()));
         BookSearchRequest searchRequest = new BookSearchRequest();
-        searchRequest.setKeyword(keyword);
+        searchRequest.setKeyword(key);
         BookSearchResponse response = bookRepository.search(searchRequest);
 
         //TODO 返回数据，进行遍历加权处理排序 然后组装符合前端需要的数据格式
         List<Book> list = new ArrayList<>(10);
-
-        //for (int i = 0; i < response.getDocs().size(); i++)
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 0; i < response.getDocs().size(); i++) {
             Book book = new Book();
-            //BeanUtils.copyProperties(response.getDocs().get(i), book);
-            book.setId(i);
-            book.setAuthor("作者" + i);
-            book.setPrice(new BigDecimal(i + 1));
-            book.setTitle("标题" + i);
+            BeanUtils.copyProperties(response.getDocs().get(i), book);
+            book.setPrice(new BigDecimal(response.getDocs().get(i).getPrice() / 100.0));
             list.add(book);
         }
         return list;
@@ -76,21 +74,19 @@ public class BookService {
      */
 
     public List<Book> searchBookVec(String keyword) {
-
-        //TODO　进行分词处理，获取词性 以及词性ID，进行不同搜索策略选择
-        List<Term> termList = StandardTokenizer.segment(keyword);
-        if (CollectionUtils.isEmpty(termList)) return null;
-        String key = StrUtil.join(",", termList.stream().map(p -> p.word).collect(Collectors.toList()));
+        if (StringUtils.isEmpty(keyword)) return null;
+        Double[] vector = new Double[]{};
+        //TODO 文本词向量转化
         BookSearchRequest searchRequest = new BookSearchRequest();
-        searchRequest.setKeyword(key);
-        BookSearchResponse response = bookRepository.search(searchRequest);
+        searchRequest.setVector(vector);
+        BookSearchResponse response = bookRepository.vectorSearch(searchRequest);
 
         //TODO 返回数据，进行遍历加权处理排序 然后组装符合前端需要的数据格式
         List<Book> list = new ArrayList<>(10);
         for (int i = 0; i < response.getDocs().size(); i++) {
             Book book = new Book();
             BeanUtils.copyProperties(response.getDocs().get(i), book);
-            book.setPrice(new BigDecimal(response.getDocs().get(i).getPrice()/100.0));
+            book.setPrice(new BigDecimal(response.getDocs().get(i).getPrice() / 100.0));
             list.add(book);
         }
         return list;

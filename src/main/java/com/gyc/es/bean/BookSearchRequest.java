@@ -6,4 +6,7 @@ import lombok.Data;
 public class BookSearchRequest extends SearchRequest {
 
     private String keyword;
+
+    private Double[] vector;
+
 }
