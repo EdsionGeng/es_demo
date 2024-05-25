@@ -11,7 +11,7 @@ public class ESBook {
 
     private Long id;
     private String title;
-    private String titleVec;
+    private Double[] titleVec;
     private String tag;
     private String author;
     private Integer price;

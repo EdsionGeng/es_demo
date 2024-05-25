@@ -23,10 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,7 +104,11 @@ public class BookService {
             esBook.setAuthor(x.getAuthor());
             esBook.setTitle(x.getTitle());
             esBook.setTag(x.getTag());
-            esBook.setTitleVec(null);
+            Double[] titleVesArr = new Double[3];
+            for (int i = 0; i < 3; i++) {
+                titleVesArr[i] = new Random().nextDouble();
+            }
+            esBook.setTitleVec(titleVesArr);
             esBook.setCategory(x.getCategory());
             esBook.setPrice(x.getPriceRef().multiply(new BigDecimal(100)).intValue());
             String str = ESUtil.dealProductIndexBuildData(bookIndexName, esBook.getId(), esBook);
