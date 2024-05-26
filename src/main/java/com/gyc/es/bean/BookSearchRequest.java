@@ -7,6 +7,6 @@ public class BookSearchRequest extends SearchRequest {
 
     private String keyword;
 
-    private Double[] vector;
+    private float[] vector;
 
 }

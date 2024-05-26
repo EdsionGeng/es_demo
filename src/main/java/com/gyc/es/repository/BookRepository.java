@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -42,7 +43,7 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
             "        \"match_all\": {}\n" +
             "      },\n" +
             "      \"script\": {\n" +
-            "        \"source\": \"cosineSimilarity(params.query_vector, 'title_vec') + 1.0\", \n" +
+            "        \"source\": \"cosineSimilarity(params.query_vector, doc['title_vec']) + 1.0\", \n" +
             "        \"params\": {\n" +
             "          \"query_vector\": %s\n" +
             "        }\n" +
@@ -84,13 +85,14 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
 
             bookSearchRequest = (BookSearchRequest) request;
             //TODO DSL 进行组装处理
-            String bookQueryDsl = String.format(bookQueryVecBody, bookSearchRequest.getVector().toString());
-
+            String bookQueryDsl = String.format(bookQueryVecBody, Arrays.toString(bookSearchRequest.getVector()));
+            log.info("query Dsl->{}", bookQueryDsl);
             try {
                 //查询ES,解析返回数据 组装实体
                 String result = OkHttpUtils.callWithAuth(esConfig.getBookESUrl(), bookQueryDsl,
                         esConfig.getUsername(), esConfig.getPassword());
                 BookSearchResponse searchResponse = JSON.parseObject(result, BookSearchResponse.class);
+                searchResponse.convertBody();
                 return searchResponse;
             } catch (Exception e) {
                 log.error("book search make error ->{}", e);
@@ -112,7 +114,7 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
         if (StringUtils.isEmpty(insertBody)) {
             return 0;
         }
-        String str = OkHttpUtils.callWithAuth(esConfig.getEsServerName() + "_bulk", insertBody, esConfig.getUsername(), esConfig.getPassword());
+        String str = OkHttpUtils.callWithAuth(esConfig.getBulkUrl(), insertBody, esConfig.getUsername(), esConfig.getPassword());
         return 1;
     }
 }

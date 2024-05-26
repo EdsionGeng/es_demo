@@ -1,17 +1,14 @@
 package com.gyc.es.service;
 
 
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.gyc.es.bean.*;
 import com.gyc.es.repository.BookRepository;
 import com.gyc.es.util.ESUtil;
+import com.hankcs.hanlp.mining.word2vec.Vector;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +20,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,7 +56,9 @@ public class BookService {
         for (int i = 0; i < response.getDocs().size(); i++) {
             Book book = new Book();
             BeanUtils.copyProperties(response.getDocs().get(i), book);
-            book.setPrice(new BigDecimal(response.getDocs().get(i).getPrice() / 100.0));
+            BigDecimal  decimal=new BigDecimal(response.getDocs().get(i).getPrice()).divide(new BigDecimal(100.0));
+            decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+            book.setPrice(decimal);
             list.add(book);
         }
         return list;
@@ -71,11 +72,15 @@ public class BookService {
      */
 
     public List<Book> searchBookVec(String keyword) {
+
         if (StringUtils.isEmpty(keyword)) return null;
-        Double[] vector = new Double[]{};
         //TODO 文本词向量转化
+        float[] titleVesArr = new float[128];
+        for (int i = 0; i < 128; i++) {
+            titleVesArr[i] = (float) Math.random();
+        }
         BookSearchRequest searchRequest = new BookSearchRequest();
-        searchRequest.setVector(vector);
+        searchRequest.setVector(titleVesArr);
         BookSearchResponse response = bookRepository.vectorSearch(searchRequest);
 
         //TODO 返回数据，进行遍历加权处理排序 然后组装符合前端需要的数据格式
@@ -83,7 +88,9 @@ public class BookService {
         for (int i = 0; i < response.getDocs().size(); i++) {
             Book book = new Book();
             BeanUtils.copyProperties(response.getDocs().get(i), book);
-            book.setPrice(new BigDecimal(response.getDocs().get(i).getPrice() / 100.0));
+            BigDecimal  decimal=new BigDecimal(response.getDocs().get(i).getPrice()).divide(new BigDecimal(100.0));
+            decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+            book.setPrice(decimal);
             list.add(book);
         }
         return list;
@@ -100,17 +107,17 @@ public class BookService {
         StringBuffer dsl = new StringBuffer();
         result.stream().forEach(x -> {
             ESBook esBook = new ESBook();
-            esBook.setId(x.getId());
-            esBook.setAuthor(x.getAuthor());
-            esBook.setTitle(x.getTitle());
-            esBook.setTag(x.getTag());
-            Double[] titleVesArr = new Double[3];
-            for (int i = 0; i < 3; i++) {
-                titleVesArr[i] = new Random().nextDouble();
-            }
-            esBook.setTitleVec(titleVesArr);
-            esBook.setCategory(x.getCategory());
+            BeanUtils.copyProperties(x, esBook);
+            esBook.setCreateTime(null);
             esBook.setPrice(x.getPriceRef().multiply(new BigDecimal(100)).intValue());
+            Vector vector = new Vector(3);
+            float[] titleVesArr = new float[128];
+            for (int i = 0; i < 128; i++) {
+                titleVesArr[i] = (float) Math.random();
+            }
+            vector.setElementArray(titleVesArr);
+            esBook.setTitleVec(titleVesArr);
+
             String str = ESUtil.dealProductIndexBuildData(bookIndexName, esBook.getId(), esBook);
             dsl.append(str);
         });
