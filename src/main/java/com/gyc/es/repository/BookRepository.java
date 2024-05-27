@@ -19,7 +19,7 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
     @Autowired
     private ESConfig esConfig;
     private static String bookQueryBody = "{\n" +
-            "    \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\"],\n" +
+            "    \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\",\"create_time\"],\n" +
             "    \"query\": {\n" +
             "     \"bool\": {\n" +
             "     \"must\":[{\"multi_match\": {\"query\": \"%s\",\"fields\":[\"title^2\",  \"author^1\",\"tag^1\"] ,\"minimum_should_match\":\"%100%\",\"type\":\"cross_fields\"\n" +
@@ -33,7 +33,7 @@ public class BookRepository extends BaseRepository<ESSearchResponse, SearchReque
             " }";
 
     private static String bookQueryVecBody = " {\n" +
-            "  \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\"],\n" +
+            "  \"_source\": [\"title\",\"tag\",\"author\",\"price\",\"id\",\"category\",\"create_time\"],\n" +
             "  \"from\":0,\n" +
             "  \"size\":300,\n" +
             "  \"timeout\": \"5s\",\n" +

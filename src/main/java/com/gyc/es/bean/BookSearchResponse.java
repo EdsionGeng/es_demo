@@ -17,6 +17,7 @@ public class BookSearchResponse extends ESSearchResponse {
         for (int i = 0, length = this.getHits().getHits().size(); i < length; i++) {
             EsResponseEntity esResponseEntity = this.getHits().getHits().get(i);
             ESBook esBook = JSON.parseObject(JSON.toJSONString(esResponseEntity.get_source()), ESBook.class);
+            esBook.setCreateTime(String.valueOf(esResponseEntity.get_source().get("create_time")));
             list.add(esBook);
         }
         this.setDocs(list);

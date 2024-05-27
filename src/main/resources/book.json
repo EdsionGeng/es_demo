@@ -32,13 +32,13 @@
       },
       "title_vec": {
         "type": "dense_vector",
-        "dims": 128
+        "dims": 3
       },
       "price": {
         "type": "integer"
       },
       "create_time": {
-        "format": "yyyy-MM-dd",
+        "format": "yyyy-MM-dd HH:mm:ss",
         "type": "date"
       }
     }

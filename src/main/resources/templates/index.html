@@ -27,8 +27,10 @@
         <!--        th标签定义html表格中的表头单元格-->
         <th>编号</th>
         <th>书名</th>
+        <th>标签</th>
         <th>作者</th>
         <th>价格</th>
+        <th>上架时间</th>
     </tr>
     </thead>
     <!--tr标签定义html表格中的所有行-->
@@ -37,8 +39,10 @@
         <!--        td标签定义html表格中的标准单元格-->
         <td th:text="${book.id}"></td>
         <td th:text="${book.title}"></td>
+        <td th:text="${book.tag}"></td>
         <td th:text="${book.author}"></td>
         <td th:text="${book.price}"></td>
+        <td th:text="${book.createTime}"></td>
         <!--        <td>-->
         <!--            &lt;!&ndash;         a标签用来定义超链接 href表示超链接&ndash;&gt;-->
         <!--            <a class="btn btn-primary" th:href="@{'/updatePage/'+${user.id}}">更改</a>-->
@@ -47,7 +51,6 @@
     </tr>
 </table>
 <!--<button class="btn btn-block"><a href="/add.html">添加用户</a></button>-->
-
 </body>
 
 </html>

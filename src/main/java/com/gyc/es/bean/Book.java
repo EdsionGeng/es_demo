@@ -18,6 +18,6 @@ public class Book implements Serializable {
 
     private BigDecimal price;
 
-    private Date createTime;
+    private String createTime;
 
 }

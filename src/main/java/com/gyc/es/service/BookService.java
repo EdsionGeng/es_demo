@@ -7,6 +7,7 @@ import cn.hutool.core.text.csv.CsvUtil;
 import cn.hutool.core.util.StrUtil;
 import com.gyc.es.bean.*;
 import com.gyc.es.repository.BookRepository;
+import com.gyc.es.util.DateUtil;
 import com.gyc.es.util.ESUtil;
 import com.hankcs.hanlp.mining.word2vec.Vector;
 import com.hankcs.hanlp.seg.common.Term;
@@ -59,6 +60,7 @@ public class BookService {
             BigDecimal  decimal=new BigDecimal(response.getDocs().get(i).getPrice()).divide(new BigDecimal(100.0));
             decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
             book.setPrice(decimal);
+            book.setCreateTime(DateUtil.convert2Str(response.getDocs().get(i).getCreateTime()));
             list.add(book);
         }
         return list;
@@ -75,8 +77,8 @@ public class BookService {
 
         if (StringUtils.isEmpty(keyword)) return null;
         //TODO 文本词向量转化
-        float[] titleVesArr = new float[128];
-        for (int i = 0; i < 128; i++) {
+        float[] titleVesArr = new float[3];
+        for (int i = 0; i < 3; i++) {
             titleVesArr[i] = (float) Math.random();
         }
         BookSearchRequest searchRequest = new BookSearchRequest();
@@ -91,6 +93,7 @@ public class BookService {
             BigDecimal  decimal=new BigDecimal(response.getDocs().get(i).getPrice()).divide(new BigDecimal(100.0));
             decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
             book.setPrice(decimal);
+            book.setCreateTime(DateUtil.convert2Str(response.getDocs().get(i).getCreateTime()));
             list.add(book);
         }
         return list;
@@ -108,11 +111,11 @@ public class BookService {
         result.stream().forEach(x -> {
             ESBook esBook = new ESBook();
             BeanUtils.copyProperties(x, esBook);
-            esBook.setCreateTime(null);
             esBook.setPrice(x.getPriceRef().multiply(new BigDecimal(100)).intValue());
+            esBook.setCreateTime(DateUtil.convert2Str(x.getCreateTime()));
             Vector vector = new Vector(3);
-            float[] titleVesArr = new float[128];
-            for (int i = 0; i < 128; i++) {
+            float[] titleVesArr = new float[3];
+            for (int i = 0; i < 3; i++) {
                 titleVesArr[i] = (float) Math.random();
             }
             vector.setElementArray(titleVesArr);
